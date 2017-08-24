@@ -17,7 +17,7 @@ class SessionHelper:
 
     def is_logged_in(self):
         wd = self.app.wd
-        return len(wd.find_elements_by_link_text('Logout')) > 0
+        return len(wd.find_elements_by_css_selector('div#sidebar')) > 0
 
     def is_logged_in_as(self, username):
         wd = self.app.wd
@@ -25,7 +25,7 @@ class SessionHelper:
 
     def get_logged_user(self):
         wd = self.app.wd
-        return wd.find_element_by_xpath("//ul[@class='breadcrumb']//a").text
+        return wd.find_element_by_xpath("//div[@class='main-content']//ul[@class='breadcrumb']//a").text
 
     def ensure_login(self, username, password):
         wd = self.app.wd
@@ -36,10 +36,12 @@ class SessionHelper:
                 self.logout()
         self.login(username, password)
 
-
     def logout(self):
         wd = self.app.wd
-        wd.find_element_by_link_text("Logout").click()
+        user_panel = wd.find_elements_by_xpath("//a[@data-toggle='dropdown']")[1]
+        user_panel.click()
+        wd.find_element_by_link_text('выход').click()
+
 
     def ensure_logout(self):
         wd = self.app.wd

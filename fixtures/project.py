@@ -31,19 +31,36 @@ class ProjectHelper:
 
     def open_project_panel(self):
         wd = self.app.wd
-        wd.find_element_by_xpath("//a[@href='/mantisbt-2.5.1/manage_proj_page.php']").click()
+        if not wd.current_url.endswith('/manage_proj_page.php'):
+            wd.find_element_by_xpath("//a[@href='/mantisbt-2.5.1/manage_proj_page.php']").click()
 
     def get_project_list(self):
         wd = self.app.wd
         self.open_manage_panel()
         self.open_project_panel()
-        project_table = wd.find_element_by_css_selector('table.table.table-striped.table-bordered.table-condensed.table-hover')
-        project_rows = project_table.find_elements_by_xpath("//tbody//tr")
         project_list = []
+        project_table = wd.find_element_by_css_selector('table.table.table-striped.table-bordered.table-condensed.table-hover')
+        project_rows = project_table.find_elements_by_xpath(".//tbody//tr")
         for row in project_rows:
-            cells = row.find_elements_by_tag_name('td')
+            cells = row.find_elements_by_tag_name("td")
             project_name = cells[0].text
-            project_description = cells[4].text
-            project_list.append(Project(name=project_name, description=project_description))
+            project_desc = cells[4].text
+            project_list.append(Project(name=project_name, description=project_desc))
         return project_list
+
+    def delete_project(self, index):
+        wd = self.app.wd
+        self.select_project_by_index(index)
+        wd.find_element_by_xpath("//input[@value='Удалить проект']").click()
+        wd.find_element_by_xpath("//input[@value='Удалить проект']").click()
+        self.open_project_panel()
+
+    def select_project_by_index(self, index):
+        wd = self.app.wd
+        self.open_manage_panel()
+        self.open_project_panel()
+        project_table = wd.find_element_by_css_selector('table.table.table-striped.table-bordered.table-condensed.table-hover')
+        project_to_delete = project_table.find_elements_by_xpath(".//tbody//tr")[index]
+        link = project_to_delete.find_elements_by_tag_name('td')[0]
+        link.find_element_by_css_selector('a').click()
 
